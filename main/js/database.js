@@ -57,7 +57,7 @@ module.exports = () => {
     }
 
     module.dropTables = () => {
-        let stmts = [db.prepare("DROP TABLE tasks")];
+        let stmts = [db.prepare("DROP TABLE IF EXISTS tasks")];
         for (i in stmts) {
             stmts[i].run();
         }
