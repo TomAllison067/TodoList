@@ -1,36 +1,35 @@
-var express = require('express')
-var router = express.Router()
-
+const express = require('express')
+const router = express.Router()
 const date = require('../js/date');
+const db = require('../../app').db
 
-let tasks = ['Buy food', 'Cook food', 'Eat food'];
-let worktasks = ['Study']
+// let tasks = ['Buy food', 'Cook food', 'Eat food'];
+// let worktasks = ['Study']
+
 
 router.route('/')
     .get((req, res) => {
-        today=date.getToday();
-        return res.render('../views/list', {title: "ToDo List", today: today, tasks: tasks, listTitle: "list"});
+        today = date.getToday();
+        tasks = db.getList('list');
+        return res.render('../views/list', { title: "ToDo List", today: today, tasks: tasks, formAction: "/" });
     })
-    .post((req,res) => {
-        console.log(req.body);
-        let newTask = req.body.newTask;
-        let redirectUrl = "/"
-        let title = "";
-        if (newTask !== ""){
-            if (req.body.button === "list"){
-                tasks.push(newTask);
-            } else {
-                worktasks.push(newTask);
-                redirectUrl="/work";
-            }
+    .post((req, res) => {
+        if (req.body.newTask !== "") {
+            db.addTask(req.body.newTask, "list");
+            return res.redirect('/');
         }
-        return res.redirect(redirectUrl);
     });
 
 router.route('/work')
     .get((req, res) => {
-        today=date.getToday();
-        return res.render('list', {title: "ToDo List", today: today, tasks: worktasks, listTitle: "workList"});
+        today = date.getToday();
+        tasks = db.getList('work');
+        return res.render('../views/list', { title: "ToDo List", today: today, tasks: tasks, formAction: "/work"});
+    })
+    .post((req, res) => {
+        if (req.body.newTask !== "") {
+            db.addTask(req.body.newTask, "work");
+            return res.redirect('/work');
+        }
     });
-
 module.exports = router

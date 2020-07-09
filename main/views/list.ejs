@@ -7,13 +7,13 @@
     <% for (task in tasks) { %>
     <div class="item">
         <input type="checkbox">
-        <p><%= tasks[task] %></p>
+        <p><%= tasks[task].body %></p>
     </div>
     <% }; %>
 
-    <form class="item" action="/" method="POST">
+    <form class="item" action="<%= formAction %>" method="POST">
         <input type="text" name="newTask" placeholder="Add to list.." autocomplete="off"></input>
-        <button type="submit" name="button" value=<%= listTitle %>>+</button>
+        <button type="submit" name="list">+</button>
     </form>
 </div>
 
