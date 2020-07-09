@@ -4,6 +4,19 @@ const date = require(__dirname + "/js/date");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const db = require('./js/database.js')()
+
+function testDb() {
+    // db.fuckYou('foo', 'bar');
+    db.createTable();
+    
+    db.addTask('foo', 'bar');
+
+    db.printTasks();
+}
+
+testDb();
+
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
