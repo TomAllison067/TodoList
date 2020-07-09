@@ -32,4 +32,11 @@ router.route('/work')
             return res.redirect('/work');
         }
     });
+
+router.route('/delete')
+    .post((req, res) => {
+        console.log("LIST TYPE: " + req.query.list);
+        console.log("Request to delete task:" + JSON.stringify(req.body));
+        return res.redirect('/');
+    })
 module.exports = router

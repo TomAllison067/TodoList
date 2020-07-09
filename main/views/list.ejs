@@ -4,14 +4,18 @@
     <h1><%= today %></h1>
 </div>
 <div class="box">
-    <% for (task in tasks) { %>
-    <div class="item">
-        <input type="checkbox">
-        <p><%= tasks[task].body %></p>
-    </div>
-    <% }; %>
+    <% tasks.forEach(task => { %>
 
-    <form class="item" action="<%= formAction %>" method="POST">
+    <form action='/delete/?list=<%= task.type %>' method='POST'>
+        <div class="item">
+            <input type="checkbox" onclick="this.form.submit()" name="<%= JSON.stringify(task) %>">
+            <p><%= task.body %></p>
+        </div>
+    </form>
+
+    <% }); %>
+
+    <form class="item" id="add" action="<%= formAction %>" method="POST">
         <input type="text" name="newTask" placeholder="Add to list.." autocomplete="off"></input>
         <button type="submit" name="list">+</button>
     </form>
