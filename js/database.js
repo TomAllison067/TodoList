@@ -1,6 +1,8 @@
 
-
 module.exports = () => {
+    /**
+     * Contains functionality for the database, allowing access.
+     */
     var module = {};
 
     const Database = require('better-sqlite3')
