@@ -19,7 +19,7 @@ module.exports = () => {
         'temp': ':memory:',
         'perm': 'app.db'
     }
-   
+
     const db = new Database(types[db_type], { verbose: console.log });
 
     /**
@@ -77,16 +77,16 @@ module.exports = () => {
             (body, type)\
             VALUES\
             (@body, @type)");
-            
+
             let insertMany = db.transaction((tasks) => {
                 for (let task of tasks) insert.run(task);
             });
 
             // DEFAULT TASKS
             insertMany([
-                {body: 'default_1', type: 'list'},
-                {body: 'default_2', type:'list'},
-                {body: 'work_1', type: 'work'}
+                { body: 'default_1', type: 'list' },
+                { body: 'default_2', type: 'list' },
+                { body: 'work_1', type: 'work' }
             ]);
 
         } catch (err) {
@@ -94,7 +94,17 @@ module.exports = () => {
         }
     }
 
-    if (process.argv[3] === 'resetdb'){
+    module.deleteTask = (taskId, err) => {
+        try {
+            let stmt = db.prepare("DELETE FROM tasks\
+            WHERE id="+ taskId);
+            stmt.run();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    if (process.argv[3] === 'resetdb') {
         module.dropTables();
         module.insertDefault();
     }

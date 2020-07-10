@@ -24,7 +24,7 @@ router.route('/work')
     .get((req, res) => {
         today = date.getToday();
         tasks = db.getList('work');
-        return res.render('../views/list', { title: "ToDo List", today: today, tasks: tasks, formAction: "/work"});
+        return res.render('../views/list', { title: "ToDo List", today: today, tasks: tasks, formAction: "/work" });
     })
     .post((req, res) => {
         if (req.body.newTask !== "") {
@@ -35,8 +35,9 @@ router.route('/work')
 
 router.route('/delete')
     .post((req, res) => {
-        console.log("LIST TYPE: " + req.query.list);
-        console.log("Request to delete task:" + JSON.stringify(req.body));
-        return res.redirect('/');
+        let redirectUrl = req.query.list === 'work' ? 'work' : '';
+        let taskId = req.body.checkbox;
+        db.deleteTask(taskId);
+        return res.redirect('/' + redirectUrl);
     })
 module.exports = router

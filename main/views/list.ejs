@@ -8,7 +8,7 @@
 
     <form action='/delete/?list=<%= task.type %>' method='POST'>
         <div class="item">
-            <input type="checkbox" onclick="this.form.submit()" name="<%= JSON.stringify(task) %>">
+            <input type="checkbox" onclick="this.form.submit()" name="checkbox" value="<%= task.id %>">
             <p><%= task.body %></p>
         </div>
     </form>
