@@ -6,7 +6,7 @@
 <div class="box">
     <% list.forEach(task => { %>
 
-    <form action='#' method='POST'>
+    <form action='/' method='GET'>
         <div class="item">
             <input type="checkbox" onclick="this.form.submit()" name="checkbox" value="<%= task %>">
             <p><%= task %></p>
