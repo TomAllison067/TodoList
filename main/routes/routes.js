@@ -17,7 +17,7 @@ router.route('/')
     })
     .post((req, res) => {
         if (req.body.taskBody !== "") {
-            lists.tasks.push(req.body.taskBody);
+            lists['tasks'].push(req.body.taskBody);
             return res.redirect('/');
         }
     });
@@ -35,7 +35,7 @@ router.route('/:list')
     .post((req, res) => {
         if (req.body.taskBody !== "") {
             let list = req.params.list;
-            lists.list.push(req.body.taskBody);
+            lists[list].push(req.body.taskBody);
             return res.redirect('/work');
         }
     });
