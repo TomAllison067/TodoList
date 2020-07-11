@@ -40,12 +40,16 @@ function insertDefaults() {
 router.route('/')
     .get((req, res) => {
         today = date.getToday();
-        Item.find({}, (items) => {
-            if (items.length === 0) {
-                insertDefaults();
-                res.redirect('/');
+        Item.find({}, (err, items) => {
+            if (err) {
+                console.log(err);
             } else {
-                res.render('../views/list', { title: "ToDo List", today: today, items: items, formAction: "/" });
+                if (items.length === 0) {
+                    insertDefaults();
+                    res.redirect('/');
+                } else {
+                    res.render('../views/list', { title: "ToDo List", today: today, items: items, formAction: "/" });
+                }
             }
         })
     })
