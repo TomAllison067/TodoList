@@ -3,19 +3,18 @@ const router = express.Router()
 const date = require('../js/date');
 const db = require('../../app').db
 
-// let tasks = ['Buy food', 'Cook food', 'Eat food'];
-// let worktasks = ['Study']
+let tasks = ['Buy food', 'Cook food', 'Eat food'];
+let worktasks = ['Study']
 
 
 router.route('/')
     .get((req, res) => {
         today = date.getToday();
-        tasks = db.getList('list');
         return res.render('../views/list', { title: "ToDo List", today: today, tasks: tasks, formAction: "/" });
     })
     .post((req, res) => {
-        if (req.body.newTask !== "") {
-            db.addTask(req.body.newTask, "list");
+        if (req.body.taskBody !== "") {
+            tasks.push(req.body.taskBody);
             return res.redirect('/');
         }
     });
@@ -23,21 +22,13 @@ router.route('/')
 router.route('/work')
     .get((req, res) => {
         today = date.getToday();
-        tasks = db.getList('work');
-        return res.render('../views/list', { title: "ToDo List", today: today, tasks: tasks, formAction: "/work" });
+        return res.render('../views/list', { title: "ToDo List", today: today, tasks: worktasks, formAction: "/work" });
     })
     .post((req, res) => {
-        if (req.body.newTask !== "") {
-            db.addTask(req.body.newTask, "work");
+        if (req.body.taskBody !== "") {
+            worktasks.push(req.body.taskBody);
             return res.redirect('/work');
         }
     });
-
-router.route('/delete')
-    .post((req, res) => {
-        let redirectUrl = req.query.list === 'work' ? 'work' : '';
-        let taskId = req.body.checkbox;
-        db.deleteTask(taskId);
-        return res.redirect('/' + redirectUrl);
-    })
+    
 module.exports = router

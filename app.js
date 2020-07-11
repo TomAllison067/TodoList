@@ -6,12 +6,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.set('view engine', 'ejs');
 app.set('views', './main/views');
 
-const db = require('./main/js/database')();
-db.initTables();
-module.exports = {
-    db,
-    app
-}
 
 const routes = require('./main/routes/routes');
 app.use('/', routes);
