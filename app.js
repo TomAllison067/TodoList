@@ -6,7 +6,9 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.set('view engine', 'ejs');
 app.set('views', './main/views');
 
-
+if (process.argv[2] === "testm"){
+    db.testRun();
+}
 const routes = require('./main/routes/routes');
 app.use('/', routes);
 
@@ -14,4 +16,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, function() {
     console.log("Server started on port " + PORT);
 });
+
+
 

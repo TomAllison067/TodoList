@@ -4,19 +4,19 @@
     <h1><%= today %></h1>
 </div>
 <div class="box">
-    <% list.forEach(task => { %>
+    <% items.forEach(item => { %>
 
-    <form action='/' method='GET'>
+    <form action='/delete' method='POST'>
         <div class="item">
-            <input type="checkbox" onclick="this.form.submit()" name="checkbox" value="<%= task %>">
-            <p><%= task %></p>
+            <input type="checkbox" onclick="this.form.submit()" name="checkbox" value="<%= item.id %>">
+            <p><%= item.body %></p>
         </div>
     </form>
 
     <% }); %>
 
     <form class="item" id="add" action="<%= formAction %>" method="POST">
-        <input type="text" name="taskBody" placeholder="Add to list.." autocomplete="off"></input>
+        <input type="text" name="itemBody" placeholder="Add to list.." autocomplete="off"></input>
         <button type="submit" name="list">+</button>
     </form>
 </div>
