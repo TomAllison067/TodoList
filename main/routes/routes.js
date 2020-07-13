@@ -6,11 +6,16 @@ mongoose.connect('mongodb://localhost:27017/todolistDB', { useNewUrlParser: true
 
 const itemSchema = new mongoose.Schema({
     body: String,
-    list: String
 });
 
 const Item = mongoose.model('Item', itemSchema);
 
+const listSchema = new mongoose.Schema({
+    name: String,
+    items: [itemSchema]
+});
+
+const List = mongoose.model('List', listSchema);
 // const defaultItem1 = new Item({body: 'item1'});
 // const defaultItem2 = new Item({body: 'item2'});
 // const defaultItem3 = new Item({body: 'item3'});
@@ -22,52 +27,73 @@ const Item = mongoose.model('Item', itemSchema);
 //     }));
 // });
 
-function insertDefaults(callback) {
+function insertDefaultList(callback) {
     const defaultItem1 = new Item({ body: 'item1', list: 'defaultList' });
     const defaultItem2 = new Item({ body: 'item2', list: 'defaultList' });
     const defaultItem3 = new Item({ body: 'item3', list: 'defaultList' });
     let defaultItems = [defaultItem1, defaultItem2, defaultItem3];
 
     defaultItems.forEach((item) => {
-        Item.updateOne({ body: item.body, list: item.list }, { item }, { upsert: true }, ((err) => {
-            if (err) {
-                console.log(err)
-            }
-        }));
+        item.save();
     });
+
+    defaultList = new List({
+        name: 'defaultList',
+        items: defaultItems
+    });
+    defaultList.save();
     console.log("Default items inserted");
     callback();
 }
 
-function getItems(res, list) {
-    Item.find({ list: list }, (err, items) => {
-        if (err) {
-            console.log(err);
-        } else {
-            if (list === 'defaultList' && items.length === 0) {
-                insertDefaults(() => {
-                    res.redirect('/');
-                });
+function showList(res, listName) {
+    List.findOne({ name: listName }, (err, foundList) => {
+        if (!err) {
+            if (!foundList) {
+                if (listName === 'defaultList') {
+                    insertDefaultList(() => {
+                        res.redirect('/');
+                    });
+                } else {
+                    let newList = new List({
+                        name: listName,
+                        items: []
+                    });
+                    newList.save();
+                    res.redirect('/' + listName);
+                }
             } else {
-                res.render('../views/list', { title: "ToDo List", today: today, items: items, list: list, formAction: "/" });
+                res.render('../views/list', { list: foundList, items: foundList.items, formAction: "/", today: date.getToday(), });
             }
         }
     });
 }
 
-function postItem(body, list, callback) {
-    if (list == null) {
-        list = 'defaultList';
-    }
-    var item = new Item({ body: body, list: list });
-    item.save((err) => {
-        if (err) {
-            console.error(err);
-        } else {
-            console.log("Item saved.");
+function createNewList(itemBody, listName, callback) {
+    item = new Item({ body: itemBody });
+    list = new List({
+        name: listName,
+        items: [item]
+    });
+    list.save();
+    callback();
+}
+
+function postItem(itemBody, listName, callback) {
+    List.findOne({ name: listName }, (err, foundList) => {
+        if (!err) {
+            if (!foundList) {
+                createNewList(itemBody, listName, () => {
+                    callback();
+                });
+            } else {
+                item = new Item({ body: itemBody });
+                foundList.items.push(item);
+                foundList.save();
+                callback();
+            }
         }
     });
-    callback();
 }
 
 function removeItem(itemId) {
@@ -84,24 +110,28 @@ function removeItem(itemId) {
 router.route('/')
     .get((req, res) => {
         today = date.getToday();
-        getItems(res, 'defaultList');
+        showList(res, 'defaultList');
     })
     .post((req, res) => {
-        console.log(req.body.itemBody);
-        console.log(req.body.list);
-        if (req.body.taskBody !== "") {
-            postItem(req.body.itemBody, req.body.list, () => {
-                res.redirect('/');
-            });
+        let itemBody = req.body.itemBody;
+        let listName = req.body.list
 
+        if (req.body.taskBody !== "") {
+            postItem(itemBody, listName, () => {
+                if (listName === 'defaultList') {
+                    res.redirect('/');
+                } else {
+                    res.redirect('/' + listName);
+                }
+            });
         }
     });
 
 // Custom lists
 router.route('/:customList')
     .get((req, res) => {
-        console.log(req.params.customList);
-        res.redirect('/');
+        let listName = req.params.customList;
+        showList(res, listName);
     });
 
 router.route('/delete')
