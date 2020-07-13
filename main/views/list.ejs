@@ -1,14 +1,16 @@
 <%- include("header") -%>
 
 <div class="box" id="heading">
-    <h1><%= today %></h1>
+    <h1><%= list.name %></h1>
+    <h2><%= today %></h2>
 </div>
 <div class="box">
     <% items.forEach(item => { %>
 
     <form action='/delete' method='POST'>
         <div class="item">
-            <input type="checkbox" onclick="this.form.submit()" name="checkbox" value="<%= item.id %>">
+            <input type="checkbox" name="checkbox" value="<%= item.id %>" onclick="this.form.submit()">
+            <input type="hidden" name="listName" value="<%= list.name %>">
             <p><%= item.body %></p>
         </div>
     </form>
@@ -17,8 +19,8 @@
 
     <form class="item" id="add" action="<%= formAction %>" method="POST">
         <input type="text" name="itemBody" placeholder="Add to list.." autocomplete="off"></input>
-        <input type="hidden" name="listName" value="<%= list.name %>">
-        <button type="submit" name="list" value="<%= list.name %>">+</button>
+
+        <button type="submit" name="listName" value="<%= list.name %>">+</button>
     </form>
 </div>
 

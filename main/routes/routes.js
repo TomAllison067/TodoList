@@ -1,8 +1,50 @@
 const express = require('express')
 const router = express.Router()
 const date = require('../js/date');
+const _ = require('lodash');
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/todolistDB', { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Default list
+router.route('/')
+    .get((req, res) => {
+        today = date.getToday();
+        showList(res, 'Default');
+    })
+    .post((req, res) => {
+        let itemBody = req.body.itemBody;
+        let listName = _.capitalize(req.body.listName);
+
+        if (req.body.taskBody !== "") {
+            postItem(itemBody, listName, () => {
+                if (listName === 'Default') {
+                    res.redirect('/');
+                } else {
+                    res.redirect('/' + listName);
+                }
+            });
+        }
+    });
+
+// Custom lists
+router.route('/:customList')
+    .get((req, res) => {
+        let listName = _.capitalize(req.params.customList);
+        showList(res, listName);
+    });
+
+router.route('/delete')
+    .post((req, res) => {
+        let itemId = req.body.checkbox;
+        let listName = _.capitalize(req.body.listName);
+        removeItem(itemId, listName, () => {
+            res.redirect('/' + listName);
+        });
+    });
+
+router.route('/favicon.ico', (req, res) => res.status(204));
+module.exports = router
+
 
 const itemSchema = new mongoose.Schema({
     body: String,
@@ -27,18 +69,14 @@ const List = mongoose.model('List', listSchema);
 //     }));
 // });
 
-function insertDefaultList(callback) {
-    const defaultItem1 = new Item({ body: 'item1', list: 'defaultList' });
-    const defaultItem2 = new Item({ body: 'item2', list: 'defaultList' });
-    const defaultItem3 = new Item({ body: 'item3', list: 'defaultList' });
+function insertdefault(callback) {
+    const defaultItem1 = new Item({ body: 'item1', list: 'Default' });
+    const defaultItem2 = new Item({ body: 'item2', list: 'Default' });
+    const defaultItem3 = new Item({ body: 'item3', list: 'Default' });
     let defaultItems = [defaultItem1, defaultItem2, defaultItem3];
 
-    defaultItems.forEach((item) => {
-        item.save();
-    });
-
-    defaultList = new List({
-        name: 'defaultList',
+    let defaultList = new List({
+        name: 'Default',
         items: defaultItems
     });
     defaultList.save();
@@ -50,8 +88,8 @@ function showList(res, listName) {
     List.findOne({ name: listName }, (err, foundList) => {
         if (!err) {
             if (!foundList) {
-                if (listName === 'defaultList') {
-                    insertDefaultList(() => {
+                if (listName === 'Default') {
+                    insertdefault(() => {
                         res.redirect('/');
                     });
                 } else {
@@ -60,7 +98,8 @@ function showList(res, listName) {
                         items: []
                     });
                     newList.save();
-                    res.redirect('/' + listName);
+                    let url = "/" + (listName === 'Default' ? '' : listName);
+                    res.redirect(url);
                 }
             } else {
                 res.render('../views/list', { list: foundList, items: foundList.items, formAction: "/", today: date.getToday(), });
@@ -96,50 +135,8 @@ function postItem(itemBody, listName, callback) {
     });
 }
 
-function removeItem(itemId) {
-    Item.deleteOne({ _id: itemId }, (err) => {
-        if (err) {
-            console.error(err);
-        } else {
-            console.log("Item removed.");
-        }
-    })
+function removeItem(itemId, listName, callback) {
+    List.updateOne({ name: listName }, { $pull: { items: { _id: itemId } } }, () => {
+        callback();
+    });
 }
-
-// Default list
-router.route('/')
-    .get((req, res) => {
-        today = date.getToday();
-        showList(res, 'defaultList');
-    })
-    .post((req, res) => {
-        let itemBody = req.body.itemBody;
-        let listName = req.body.list
-
-        if (req.body.taskBody !== "") {
-            postItem(itemBody, listName, () => {
-                if (listName === 'defaultList') {
-                    res.redirect('/');
-                } else {
-                    res.redirect('/' + listName);
-                }
-            });
-        }
-    });
-
-// Custom lists
-router.route('/:customList')
-    .get((req, res) => {
-        let listName = req.params.customList;
-        showList(res, listName);
-    });
-
-router.route('/delete')
-    .post((req, res) => {
-        let itemId = req.body.checkbox;
-        removeItem(itemId);
-        res.redirect('/');
-    });
-
-router.route('/favicon.ico', (req, res) => res.status(204));
-module.exports = router
