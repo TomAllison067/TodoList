@@ -22,7 +22,7 @@ const Item = mongoose.model('Item', itemSchema);
 //     }));
 // });
 
-function insertDefaults() {
+function insertDefaults(callback) {
     const defaultItem1 = new Item({ body: 'item1', list: 'defaultList' });
     const defaultItem2 = new Item({ body: 'item2', list: 'defaultList' });
     const defaultItem3 = new Item({ body: 'item3', list: 'defaultList' });
@@ -36,6 +36,7 @@ function insertDefaults() {
         }));
     });
     console.log("Default items inserted");
+    callback();
 }
 
 function getItems(res, list) {
@@ -44,8 +45,9 @@ function getItems(res, list) {
             console.log(err);
         } else {
             if (list === 'defaultList' && items.length === 0) {
-                insertDefaults();
-                res.redirect('/');
+                insertDefaults(() => {
+                    res.redirect('/');
+                });
             } else {
                 res.render('../views/list', { title: "ToDo List", today: today, items: items, list: list, formAction: "/" });
             }
@@ -53,7 +55,7 @@ function getItems(res, list) {
     });
 }
 
-function postItem(body, list) {
+function postItem(body, list, callback) {
     if (list == null) {
         list = 'defaultList';
     }
@@ -65,6 +67,7 @@ function postItem(body, list) {
             console.log("Item saved.");
         }
     });
+    callback();
 }
 
 function removeItem(itemId) {
@@ -77,6 +80,7 @@ function removeItem(itemId) {
     })
 }
 
+// Default list
 router.route('/')
     .get((req, res) => {
         today = date.getToday();
@@ -86,10 +90,19 @@ router.route('/')
         console.log(req.body.itemBody);
         console.log(req.body.list);
         if (req.body.taskBody !== "") {
-            postItem(req.body.itemBody, req.body.list);
-            return res.redirect('/');
+            postItem(req.body.itemBody, req.body.list, () => {
+                res.redirect('/');
+            });
+
         }
     });
+
+// Custom lists
+// router.route('/:customList')
+//     .get((req, res) => {
+//         console.log(req.params.customList);
+//         res.redirect('/');
+//     });
 
 router.route('/delete')
     .post((req, res) => {
