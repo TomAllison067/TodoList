@@ -98,11 +98,11 @@ router.route('/')
     });
 
 // Custom lists
-// router.route('/:customList')
-//     .get((req, res) => {
-//         console.log(req.params.customList);
-//         res.redirect('/');
-//     });
+router.route('/:customList')
+    .get((req, res) => {
+        console.log(req.params.customList);
+        res.redirect('/');
+    });
 
 router.route('/delete')
     .post((req, res) => {
@@ -111,4 +111,5 @@ router.route('/delete')
         res.redirect('/');
     });
 
+router.route('/favicon.ico', (req, res) => res.status(204));
 module.exports = router
