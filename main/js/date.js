@@ -1,4 +1,3 @@
-
 const getToday = () => {
     let date = new Date();
     let options = {

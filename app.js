@@ -1,3 +1,7 @@
+/**
+ * A simple toDo list app made in nodeJS, using express for templating.
+ */
+
 const express = require("express");
 const app = express();
 const bodyParser = require('body-parser');
@@ -6,9 +10,14 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.set('view engine', 'ejs');
 app.set('views', './main/views');
 
-if (process.argv[2] === "testm"){
-    db.testRun();
-}
+function ignoreFavicon(req, res, next) {
+    if (req.originalUrl === '/favicon.ico') {
+      res.status(204).json({nope: true});
+    } else {
+      next();
+    }
+  }
+app.use(ignoreFavicon);
 const routes = require('./main/routes/routes');
 app.use('/', routes);
 
